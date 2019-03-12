@@ -13,61 +13,54 @@ Game::Game(std::string gameName, int windowWidth, int windowHeight)
 
 void Game::Run()
 {
-	if (!this->Init())
+	if (!Init())
 	{
-		printf("Failed to init!\n");
-	}
-	else
-	{
-		if (!LoadMedia())
-		{
-			printf("Failed to load media!\n");
-		}
-		else
-		{
-			Uint32 lastTime = SDL_GetTicks();
-
-			while (!_quit)
-			{
-				Uint32 current = SDL_GetTicks();
-				float deltaTime = ((current - lastTime) * 1000 / (double)SDL_GetPerformanceFrequency());
-
-				HandleEvents();
-				Update(deltaTime);
-				Render();
-
-				lastTime = current;
-			}
-		}
+		printf("Failed to initialize..\n");
+		return;
 	}
 
-	Close();
+	if (!LoadMedia())
+	{
+		printf("Failed to load media..\n");
+		return;
+	}
+
+	Uint32 lastTime = SDL_GetTicks();
+
+	while (!_quit)
+	{
+		Uint32 current = SDL_GetTicks();
+		float deltaTime = ((current - lastTime) * 1000 / (double)SDL_GetPerformanceFrequency());
+
+		HandleEvents();
+		Update(deltaTime);
+		Render();
+	}
 }
 
 bool Game::Init()
 {
-	bool success = true;
-
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		DisplayError("SDL could not initialize!");
-		success = false;
-	}
-	else
-	{
-		_window = SDL_CreateWindow(_gameName.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _screenWidth, _screenHeight, SDL_WINDOW_SHOWN);
-		if (_window == nullptr)
-		{
-			DisplayError("Window could not be created!");
-			success = false;
-		}
-		else
-		{
-			_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
-		}
+		DisplayError("SDL could not initialize");
+		return false;
 	}
 
-	return success;
+	_window = SDL_CreateWindow(_gameName.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _screenWidth, _screenHeight, SDL_WINDOW_SHOWN);
+	if (_window == nullptr)
+	{
+		DisplayError("window could not be created");
+		return false;
+	}
+
+	_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
+	if (_renderer == nullptr)
+	{
+		DisplayError("renderer could not be created");
+		return false;
+	}
+
+	return true;
 }
 
 bool Game::LoadMedia()
