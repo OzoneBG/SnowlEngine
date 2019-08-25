@@ -24,8 +24,9 @@ void Game::Run()
         return;
     }
 
-    sf::Clock clock;
+    SpawnActors();
 
+    sf::Clock clock;
     while(window->isOpen()) {
         float DeltaTime = clock.restart().asSeconds();
 
@@ -41,15 +42,27 @@ void Game::Init()
 {
     window = new sf::RenderWindow(sf::VideoMode(screenWidth, screenHeight), gameName);
     window->setFramerateLimit(FPS);
+
+    textureManager = new TextureManager();
 }
 
 bool Game::LoadContent()
 {
-    bool success = true;
-
     // Load all assets here
+    if(!textureManager->LoadTexture("wood", "wood_texture.jpg"))
+    {
+        return false;
+    }
 
-    return success;
+    return true;
+}
+
+void Game::SpawnActors()
+{
+    Actor* woodPlank = new Actor("wood", textureManager);
+    woodPlank->BeginPlay();
+
+    Actors.push_back(woodPlank);
 }
 
 void Game::HandleEvents()
@@ -59,11 +72,21 @@ void Game::HandleEvents()
     {
         if (event.type == sf::Event::Closed)
             window->close();
+
+        for(auto actor : Actors)
+        {
+            actor->HandleEvents(event);
+        }   
+
     }
 }
 
 void Game::Update(float DeltaTime)
 {
+    for(auto actor : Actors)
+    {
+        actor->Tick(DeltaTime);
+    }
 
 }
 
@@ -71,12 +94,20 @@ void Game::Render()
 {
     window->clear(sf::Color(100, 149, 237, 255));
 
-    // window.draw(sprite);
+    for(auto actor : Actors)
+    {
+        window->draw(*actor->GetSprite());
+    }
 
     window->display();
 }
 
 void Game::Close()
 {
+    textureManager->UnloadTextures();
     
+    for(auto actor : Actors)
+    {
+        actor->Destroy();
+    }
 }

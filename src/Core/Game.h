@@ -1,7 +1,10 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <SFML/Graphics.hpp>
+#include "Utils/TextureManager.h"
+#include "Gameplay/Actor.h"
 
 class Game
 {
@@ -24,6 +27,7 @@ public:
 protected:
     virtual void Init();
 	virtual bool LoadContent();
+	virtual void SpawnActors();
 	virtual void HandleEvents();
 	virtual void Update(float DeltaTime);
 	virtual void Render();
@@ -38,4 +42,8 @@ private:
 	std::string gameName = "SFML";
 
     sf::RenderWindow* window = nullptr;
+
+	TextureManager* textureManager = nullptr;
+
+	std::vector<Actor*> Actors;
 };
